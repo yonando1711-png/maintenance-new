@@ -45,10 +45,32 @@ scripts/
 
 # Custom untracked files
 *.sql
+*.sql.gz
+*.sql.zip
+*.sql.bz2
 test_*.php
 Test*.php
 fix_*.php
 fix_*.py
+debug_*.php
+temp_*.php
 customers.json
 scratch/
+session_log*.md
 database/seeders/AdminUserSeeder.php
+
+# Office temporary lock files
+~$*.xlsx
+~$*.xls
+~$*.docx
+
+# Environment variants
+.env.*
+!.env.example
+
+# OS and Editor metadata
+desktop.ini
+ehthumbs.db
+.agents/
+.gemini/
+

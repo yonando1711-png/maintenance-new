@@ -617,6 +617,12 @@ class OdooSyncService
                 if ($vehicleTotal > 0) {
                     Log::info("Vehicle sync completed: {$vehicleTotal} vehicles processed.");
                 }
+
+                // Automatically sync latest rental start dates and KM for all vehicles
+                $rentalResult = $this->syncRentalStarts($sourceType);
+                if ($rentalResult['success']) {
+                    Log::info("Rental start sync completed: " . ($rentalResult['updated_vehicles'] ?? 0) . " vehicles updated.");
+                }
             }
 
             $this->logHistory($sourceType, 'Success', $itemsSynced, "Batch processed: $itemsSynced items.");
@@ -901,6 +907,119 @@ class OdooSyncService
             return ['success' => false, 'error' => $e->getMessage()];
         }
     }
+
+    /**
+     * Sync latest rental starts (stock.move.line with /OUT/ reference) to mobil table
+     */
+    public function syncRentalStarts($sourceType = 'Manual'): array
+    {
+        if (!$this->setting) {
+            return ['success' => false, 'message' => 'Odoo settings not configured.'];
+        }
+
+        try {
+            $authData = $this->odooCall('common', 'authenticate', [$this->db, $this->user, $this->apiKey, (object)[]]);
+            if (!$authData['success'] || empty($authData['result'])) {
+                $errorMsg = $authData['error'] ?? 'Authentication failed';
+                $this->logHistory($sourceType, 'Failed', 0, "Auth Error: " . $errorMsg);
+                return ['success' => false, 'message' => "Odoo Auth Failed: $errorMsg"];
+            }
+
+            $this->uid = $authData['result'];
+
+            $offset = 0;
+            $limit = 2000;
+            $latestRentals = [];
+
+            do {
+                $batch = $this->odooCall('object', 'execute_kw', [
+                    $this->db, $this->uid, $this->apiKey,
+                    'stock.move.line', 'search_read',
+                    [[
+                        ['state', '=', 'done'],
+                        ['reference', 'like', '/OUT/'],
+                        ['lot_id', '!=', false]
+                    ]],
+                    [
+                        'fields' => ['id', 'reference', 'lot_id', 'date', 'latest_km'],
+                        'order' => 'date desc',
+                        'offset' => $offset,
+                        'limit' => $limit
+                    ]
+                ]);
+
+                if (!$batch['success']) {
+                    return ['success' => false, 'message' => 'Failed to fetch stock move lines: ' . ($batch['error'] ?? 'Unknown error')];
+                }
+
+                $records = $batch['result'] ?? [];
+
+                foreach ($records as $r) {
+                    $lotName = is_array($r['lot_id']) ? $r['lot_id'][1] : null;
+                    if ($lotName && !isset($latestRentals[$lotName])) {
+                        // Date is UTC in Odoo, convert to Asia/Jakarta
+                        $dateJakarta = null;
+                        if (!empty($r['date'])) {
+                            try {
+                                $dateJakarta = Carbon::createFromFormat('Y-m-d H:i:s', $r['date'], 'UTC')
+                                    ->setTimezone('Asia/Jakarta')
+                                    ->format('Y-m-d H:i:s');
+                            } catch (\Exception $e) {
+                                $dateJakarta = $r['date'];
+                            }
+                        }
+
+                        $latestRentals[$lotName] = [
+                            'ref' => $r['reference'] ?? null,
+                            'date' => $dateJakarta,
+                            'km' => $r['latest_km'] ?? null,
+                        ];
+                    }
+                }
+
+                if (count($records) < $limit) {
+                    break;
+                }
+
+                $offset += $limit;
+            } while (true);
+
+            // Batch update Mobil records
+            $updatedCount = 0;
+            DB::beginTransaction();
+            foreach ($latestRentals as $plate => $data) {
+                $cleanPlate = preg_replace('/\s+/', '', $plate);
+                $mobils = Mobil::where('nomor_polisi', $plate)
+                    ->orWhere('nopol', $plate)
+                    ->orWhereRaw("REPLACE(nomor_polisi, ' ', '') = ?", [$cleanPlate])
+                    ->get();
+
+                foreach ($mobils as $m) {
+                    $m->update([
+                        'tanggal_start_sewa' => $data['date'],
+                        'km_start_sewa' => $data['km'],
+                        'rental_reference' => $data['ref'],
+                    ]);
+                    $updatedCount++;
+                }
+            }
+            DB::commit();
+
+            $this->logHistory($sourceType, 'Success', $updatedCount, "Synced rental starts for {$updatedCount} vehicle records (" . count($latestRentals) . " unique plates).");
+
+            return [
+                'success' => true,
+                'message' => "Successfully synced rental starts for {$updatedCount} vehicles.",
+                'total_unique_plates' => count($latestRentals),
+                'updated_vehicles' => $updatedCount
+            ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Rental Start Sync Error: " . $e->getMessage() . "\n" . $e->getTraceAsString());
+            return ['success' => false, 'message' => 'Error: ' . $e->getMessage()];
+        }
+    }
+
 
     private function logHistory($source, $status, $items, $details)
     {

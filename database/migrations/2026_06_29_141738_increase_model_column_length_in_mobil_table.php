@@ -12,7 +12,13 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Temporarily bypass strict date validation for existing rows
+        $sqlMode = DB::selectOne('SELECT @@sql_mode as mode')->mode;
+        DB::statement("SET SESSION sql_mode = ''");
+        
         DB::statement("ALTER TABLE mobil MODIFY COLUMN model VARCHAR(100)");
+        
+        DB::statement("SET SESSION sql_mode = '$sqlMode'");
     }
 
     /**

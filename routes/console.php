@@ -44,6 +44,9 @@ Schedule::call(function () {
             
             // 2. Sync Inventory Data (Legacy/Other)
             Artisan::call('odoo:sync', ['--force' => true]);
+
+            // 3. Sync Vehicle Rental Starts & KM
+            Artisan::call('maintenance:sync-rental-starts');
         }
     } catch (\Exception $e) {
         // Database not available or other error - skip silently
