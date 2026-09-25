@@ -66,6 +66,10 @@
                                 <svg x-show="isSyncing && isForceSyncing" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                                 <span x-text="isSyncing && isForceSyncing ? 'Syncing...' : 'Force Full Sync'">Force Full Sync</span>
                             </button>
+                            <button type="button" @click="syncRentalStarts" :disabled="isSyncing || isSyncingRental" class="px-5 py-2.5 bg-emerald-600 text-white border border-emerald-700 rounded-xl font-medium hover:bg-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm shadow-emerald-200 dark:shadow-none flex items-center gap-2" title="Sync vehicle rental start dates and KM from Odoo">
+                                <svg x-show="isSyncingRental" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                <span x-text="isSyncingRental ? 'Syncing Rentals...' : 'Sync Rental Starts'">Sync Rental Starts</span>
+                            </button>
                         </div>
 
                         <!-- Progress Bar (Visible only when syncing) -->
@@ -221,6 +225,7 @@
             isTesting: false,
             isSyncing: false,
             isForceSyncing: false,
+            isSyncingRental: false,
             syncResult: null,
             
             // Progress Bar Data
@@ -350,6 +355,35 @@
                         this.performOdooSync(true);
                     }
                 });
+            },
+
+            async syncRentalStarts() {
+                this.isSyncingRental = true;
+                try {
+                    const response = await $.ajax({
+                        url: "{{ route('maintenance.odoo.sync_rental_starts', [], false) }}",
+                        type: "POST",
+                        data: {
+                            _token: "{{ csrf_token() }}"
+                        }
+                    });
+                    if (!response.success) throw new Error(response.message);
+                    Swal.fire({
+                        title: 'Success!',
+                        text: response.message || 'Rental start dates and KM synced successfully!',
+                        icon: 'success',
+                        confirmButtonColor: '#059669'
+                    });
+                } catch (err) {
+                    Swal.fire({
+                        title: 'Sync Failed',
+                        text: err.message || 'Failed to sync rental starts',
+                        icon: 'error',
+                        confirmButtonColor: '#e11d48'
+                    });
+                } finally {
+                    this.isSyncingRental = false;
+                }
             }
 
         }));

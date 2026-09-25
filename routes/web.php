@@ -75,6 +75,7 @@ Route::middleware('auth')->group(function () {
         Route::post('maintenance/odoo/settings', [\App\Http\Controllers\OdooSettingController::class, 'store'])->name('maintenance.odoo.settings.store');
         Route::post('maintenance/odoo/test-connection', [\App\Http\Controllers\OdooSettingController::class, 'testConnection'])->name('maintenance.odoo.test_connection');
         Route::post('maintenance/odoo/sync-now', [\App\Http\Controllers\OdooSettingController::class, 'syncNow'])->name('maintenance.odoo.sync_now');
+        Route::post('maintenance/odoo/sync-rental-starts', [\App\Http\Controllers\OdooSettingController::class, 'syncRentalStartsNow'])->name('maintenance.odoo.sync_rental_starts');
         Route::get('maintenance/odoo/sync-counts', [\App\Http\Controllers\OdooSettingController::class, 'getSyncCounts'])->name('maintenance.odoo.sync_counts');
         Route::get('maintenance/odoo/sync-status', [\App\Http\Controllers\OdooSettingController::class, 'syncStatus'])->name('maintenance.odoo.sync_status');
     });

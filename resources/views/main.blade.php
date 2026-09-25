@@ -179,6 +179,8 @@
                                     <th>Warna</th>
                                     <th>Nomor Mesin</th>
                                     <th>Beli</th>
+                                    <th>Tanggal Start Sewa</th>
+                                    <th>KM Start Sewa</th>
                                     <th>Supplier</th>
                                     <th class="text-rose-600 dark:text-rose-400">Last Tgl</th>
                                     <th class="text-rose-600 dark:text-rose-400">Last KM</th>
@@ -196,6 +198,8 @@
                                 <td>{{ $v->warna ?: '-' }}</td>
                                 <td>{{ $v->nomor_mesin ?: '-' }}</td>
                                 <td>{{ $v->tanggal_pembelian ?: '-' }}</td>
+                                <td>{{ $v->tanggal_start_sewa ? \Carbon\Carbon::parse($v->tanggal_start_sewa)->format('Y-m-d') : '-' }}</td>
+                                <td>{{ is_numeric($v->km_start_sewa) ? number_format((float)$v->km_start_sewa, 0, ',', '.') : ($v->km_start_sewa ?: '-') }}</td>
                                 <td>{{ $v->kode_sup ?: '-' }}</td>
                                 <td class="text-rose-600 dark:text-rose-400 font-bold">{{ $v->last_job_date ?: '-' }}</td>
                                 <td class="text-rose-600 dark:text-rose-400 font-bold">{{ is_numeric($v->last_job_km) ? number_format((float)$v->last_job_km, 0, ',', '.') : ($v->last_job_km ?: '-') }}</td>
@@ -513,11 +517,19 @@ $(document).ready(function() {
             "buttons": [
                 {
                     extend: 'excelHtml5',
+                    title: '',
+                    filename: 'Vehicle maintenance record',
+                    exportOptions: {
+                        columns: ':not(:last-child)'
+                    },
                     text: '<span class="flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Excel</span>',
                     className: 'btn-export'
                 },
                 {
                     extend: 'pdfHtml5',
+                    exportOptions: {
+                        columns: ':not(:last-child)'
+                    },
                     text: '<span class="flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>PDF</span>',
                     className: 'btn-export'
                 }

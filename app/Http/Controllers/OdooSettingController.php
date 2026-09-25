@@ -155,4 +155,19 @@ class OdooSettingController extends Controller
             'message'   => $latest?->details ?? '',
         ]);
     }
+
+    public function syncRentalStartsNow()
+    {
+        set_time_limit(0);
+        try {
+            $service = new \App\Services\OdooSyncService();
+            $result = $service->syncRentalStarts('Manual UI');
+            return response()->json($result);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sync error: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }

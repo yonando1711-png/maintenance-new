@@ -23,6 +23,9 @@ class Mobil extends Model
         'warna',
         'nomor_mesin',
         'tanggal_pembelian',
+        'tanggal_start_sewa',
+        'km_start_sewa',
+        'rental_reference',
         'kode_sup',
     ];
 
