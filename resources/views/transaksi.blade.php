@@ -1056,7 +1056,7 @@
                     var headerContent = [];
                     if (response.mobilDetail) {
                         headerContent.push({
-                            text: (response.mobilDetail.nomor_polisi || 'Maintenance History') + ' (Tanpa Harga)',
+                            text: response.mobilDetail.nomor_polisi || 'Maintenance History',
                             style: 'header',
                             margin: [0, 0, 0, 10]
                         });
@@ -1087,7 +1087,7 @@
                         });
                     } else {
                         headerContent.push({
-                            text: 'Data Report Transaksi (Tanpa Harga)',
+                            text: 'Data Report Transaksi',
                             style: 'header',
                             margin: [0, 0, 0, 4]
                         });
@@ -1206,7 +1206,7 @@
                             color: '#334155'
                         }
                     };
-                    var pdfFileName = 'history_maintenance_tanpa_harga_';
+                    var pdfFileName = 'history_maintenance_';
                     if (response.nomor_polisi) {
                         pdfFileName += response.nomor_polisi;
                     } else if (response.customer) {

@@ -539,7 +539,7 @@ $(document).ready(function() {
                     extend: 'pdfHtml5',
                     orientation: 'landscape',
                     pageSize: 'A4',
-                    filename: 'Vehicle maintenance record (Tanpa Harga)',
+                    filename: 'Vehicle maintenance record',
                     exportOptions: {
                         columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
                     },
