@@ -743,6 +743,13 @@
                         action: function(e, dt, button, config) {
                             exportAllToPDF();
                         }
+                    },
+                    {
+                        text: '<span class="flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>PDF Tanpa Harga</span>',
+                        className: 'btn-export',
+                        action: function(e, dt, button, config) {
+                            exportAllToPDFTanpaHarga();
+                        }
                     }
                 ]
             });
@@ -1029,6 +1036,193 @@
                         });
                     }
                 });
+        }
+
+        function exportAllToPDFTanpaHarga() {
+            let alpineData = Alpine.$data(document.querySelector('[x-data="transaksiPage()"]'));
+            $.ajax({
+                url: "{{ route('maintenance.vehicle.transactions.export') }}",
+                data: {
+                    nama_customer: alpineData.namaCustomerFilter,
+                    nomor_polisi: alpineData.nomorPolisiFilter,
+                    start_date_transaksi: alpineData.startDate,
+                    end_date_transaksi: alpineData.endDate
+                },
+                success: function(response) {
+                    var customerDetail = (response.nomor_polisi || response.customer)
+                        ? [(response.nomor_polisi || ''), (response.customer || '')].filter(Boolean).join(' - ')
+                        : 'All Vehicles';
+
+                    var headerContent = [];
+                    if (response.mobilDetail) {
+                        headerContent.push({
+                            text: response.mobilDetail.nomor_polisi || 'Maintenance History',
+                            style: 'header',
+                            margin: [0, 0, 0, 10]
+                        });
+
+                        headerContent.push({
+                            table: {
+                                widths: ['*', '*', '*'],
+                                body: [
+                                    [
+                                        { text: [{ text: 'Nomor Polisi: ', bold: true }, response.mobilDetail.nomor_polisi || '-'], border: [0, 0, 0, 0] },
+                                        { text: [{ text: 'Nomor Chassis: ', bold: true }, response.mobilDetail.nomor_chassis || '-'], border: [0, 0, 0, 0] },
+                                        { text: [{ text: 'Model: ', bold: true }, response.mobilDetail.model || '-'], border: [0, 0, 0, 0] }
+                                    ],
+                                    [
+                                        { text: [{ text: 'Tahun Pembuatan: ', bold: true }, response.mobilDetail.tahun_pembuatan || '-'], border: [0, 0, 0, 0] },
+                                        { text: [{ text: 'Warna: ', bold: true }, response.mobilDetail.warna || '-'], border: [0, 0, 0, 0] },
+                                        { text: [{ text: 'Nomor Mesin: ', bold: true }, response.mobilDetail.nomor_mesin || '-'], border: [0, 0, 0, 0] }
+                                    ],
+                                    [
+                                        { text: [{ text: 'Tanggal Pembelian: ', bold: true }, response.mobilDetail.tanggal_pembelian || '-'], border: [0, 0, 0, 0] },
+                                        { text: [{ text: 'Kode Supplier: ', bold: true }, response.mobilDetail.kode_sup || '-'], border: [0, 0, 0, 0] },
+                                        { text: '', border: [0, 0, 0, 0] }
+                                    ]
+                                ]
+                            },
+                            margin: [0, 0, 0, 15],
+                            fontSize: 9
+                        });
+                    } else {
+                        headerContent.push({
+                            text: 'Data Report Transaksi',
+                            style: 'header',
+                            margin: [0, 0, 0, 4]
+                        });
+                        headerContent.push({
+                            text: customerDetail,
+                            margin: [0, 0, 0, 10]
+                        });
+                    }
+
+                    var docDefinition = {
+                        pageOrientation: 'landscape',
+                        pageSize: 'A4',
+                        pageMargins: [20, 20, 20, 20],
+                        content: headerContent.concat([{
+                                table: {
+                                    headerRows: 1,
+                                    widths: [105, 55, 45, 50, 45, 60, 90, 140, 30, '*'],
+                                    body: [
+                                        [
+                                            {text: 'Nomor Job', style: 'tableHeader'},
+                                            {text: 'No Polisi', style: 'tableHeader'},
+                                            {text: 'Tipe', style: 'tableHeader'},
+                                            {text: 'Tgl Job', style: 'tableHeader'},
+                                            {text: 'Pos KM', style: 'tableHeader'},
+                                            {text: 'Service', style: 'tableHeader'},
+                                            {text: 'Product', style: 'tableHeader'},
+                                            {text: 'Deskripsi', style: 'tableHeader'},
+                                            {text: 'Qty', style: 'tableHeader'},
+                                            {text: 'Ket', style: 'tableHeader'}
+                                        ]
+                                    ].concat(response.data.map(function(row) {
+                                        return [{
+                                                text: row.nomor_job || '',
+                                                fillColor: null
+                                            },
+                                            {
+                                                text: row.nomor_polisi || '',
+                                                fillColor: null
+                                            },
+                                            {
+                                                text: row.tipe || '',
+                                                fillColor: null
+                                            },
+                                            {
+                                                text: row.tanggal_job || '',
+                                                fillColor: null
+                                            },
+                                            {
+                                                text: row.posisi_km !== null && row.posisi_km !== undefined ? String(row.posisi_km) : '',
+                                                fillColor: null
+                                            },
+                                            {
+                                                text: row.maintenance_service || '',
+                                                fillColor: null
+                                            },
+                                            {
+                                                text: row.product || '',
+                                                fillColor: null
+                                            },
+                                            {
+                                                text: row.deskripsi || '',
+                                                fillColor: null
+                                            },
+                                            {
+                                                text: row.jumlah !== null && row.jumlah !== undefined ? String(row.jumlah) : '',
+                                                fillColor: null
+                                            },
+                                            {
+                                                text: row.keterangan || '',
+                                                fillColor: null
+                                            }
+                                        ];
+                                    })).concat([
+                                        [
+                                            {text: 'TOTAL RECORDS: ' + response.data.length, bold: true, colSpan: 10, alignment: 'right', style: 'tableFooter'},
+                                            {}, {}, {}, {}, {}, {}, {}, {}, {}
+                                        ]
+                                    ])
+                                },
+                                layout: {
+                                    hLineWidth: function(i) { return i === 0 || i === 1 ? 1 : 0.5; },
+                                    vLineWidth: function() { return 0; },
+                                    hLineColor: function(i) { return i === 0 || i === 1 ? '#4F46E5' : '#e2e8f0'; },
+                                    fillColor: function(rowIndex) {
+                                        if (rowIndex === 0) return '#4F46E5'; // indigo header
+                                        var totalRows = response.data.length + 1;
+                                        if (rowIndex === totalRows) return '#EEF2FF';
+                                        return rowIndex % 2 === 0 ? '#F8FAFC' : null;
+                                    }
+                                }
+                            }
+                        ]),
+                        styles: {
+                            header: {
+                                fontSize: 15,
+                                bold: true,
+                                color: '#1E293B',
+                                margin: [0, 0, 0, 4]
+                            },
+                            tableHeader: {
+                                bold: true,
+                                fontSize: 8,
+                                color: 'white',
+                                fillColor: '#4F46E5',
+                                alignment: 'left'
+                            },
+                            tableFooter: {
+                                bold: true,
+                                fontSize: 8,
+                                color: '#4F46E5',
+                                fillColor: '#EEF2FF'
+                            }
+                        },
+                        defaultStyle: {
+                            fontSize: 7.5,
+                            color: '#334155'
+                        }
+                    };
+                    var pdfFileName = 'history_maintenance_';
+                    if (response.nomor_polisi) {
+                        pdfFileName += response.nomor_polisi;
+                    } else if (response.customer) {
+                        pdfFileName += response.customer;
+                    } else {
+                        pdfFileName += 'all_vehicles';
+                    }
+                    pdfMake.createPdf(docDefinition).download(pdfFileName + '.pdf');
+                },
+                error: function() {
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Error exporting data. Please try again.'
+                    });
+                }
+            });
         }
 
 $(document).ready(function() {
