@@ -149,25 +149,25 @@
             <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
                 <!-- Export XLSX -->
                 <button type="button" @click="exportXLSX()" :disabled="exporting"
-                        class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 shadow-sm hover:shadow-emerald-200 dark:hover:shadow-none disabled:opacity-50">
+                        class="btn-batch-export btn-batch-xlsx" title="Download Excel (.xlsx)">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     Export XLSX
                 </button>
                 <!-- Export CSV -->
                 <button type="button" @click="exportCSV()" :disabled="exporting"
-                        class="px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 shadow-sm hover:shadow-teal-200 dark:hover:shadow-none disabled:opacity-50">
+                        class="btn-batch-export btn-batch-csv" title="Download CSV (.csv)">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     Export CSV
                 </button>
                 <!-- Export PDF (Lengkap) -->
                 <button type="button" @click="exportPDF(true)" :disabled="exporting"
-                        class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 shadow-sm hover:shadow-rose-200 dark:hover:shadow-none disabled:opacity-50">
+                        class="btn-batch-export btn-batch-pdf-full" title="Download PDF Lengkap dengan Harga">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                     Export PDF (Lengkap)
                 </button>
                 <!-- Export PDF (Tanpa Harga) -->
                 <button type="button" @click="exportPDF(false)" :disabled="exporting"
-                        class="px-4 py-2.5 bg-slate-700 hover:bg-slate-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 shadow-sm disabled:opacity-50"
+                        class="btn-batch-export btn-batch-pdf-simple"
                         title="PDF tanpa kolom harga (untuk driver / workshop)">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                     Export PDF (Tanpa Harga)
@@ -264,6 +264,74 @@
 
     <style>
         [x-cloak] { display: none !important; }
+
+        /* Batch Export Buttons */
+        .btn-batch-export {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.55rem 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #ffffff !important;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.15);
+        }
+        .btn-batch-export:hover:not(:disabled) {
+            transform: translateY(-1px);
+        }
+        .btn-batch-export:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        .btn-batch-export:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 1. Export XLSX (Green) */
+        .btn-batch-xlsx {
+            background-color: #059669 !important;
+            border: 1px solid #047857 !important;
+        }
+        .btn-batch-xlsx:hover:not(:disabled) {
+            background-color: #047857 !important;
+            box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.4);
+        }
+
+        /* 2. Export CSV (Teal / Cyan) */
+        .btn-batch-csv {
+            background-color: #0d9488 !important;
+            border: 1px solid #0f766e !important;
+        }
+        .btn-batch-csv:hover:not(:disabled) {
+            background-color: #0f766e !important;
+            box-shadow: 0 4px 6px -1px rgba(13, 148, 136, 0.4);
+        }
+
+        /* 3. Export PDF Lengkap (Rose Red) */
+        .btn-batch-pdf-full {
+            background-color: #e11d48 !important;
+            border: 1px solid #be123c !important;
+        }
+        .btn-batch-pdf-full:hover:not(:disabled) {
+            background-color: #be123c !important;
+            box-shadow: 0 4px 6px -1px rgba(225, 29, 72, 0.4);
+        }
+
+        /* 4. Export PDF Tanpa Harga (Solid Slate Gray with clear border) */
+        .btn-batch-pdf-simple {
+            background-color: #334155 !important;
+            border: 1px solid #475569 !important;
+        }
+        .btn-batch-pdf-simple:hover:not(:disabled) {
+            background-color: #1e293b !important;
+            border-color: #64748b !important;
+            box-shadow: 0 4px 6px -1px rgba(51, 65, 85, 0.4);
+        }
 
         /* Select2 Full Width Container */
         .select2-container {
