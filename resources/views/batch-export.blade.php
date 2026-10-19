@@ -34,17 +34,35 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                 <!-- Select2 Multi-Vehicle Search (Recommendation Bar) -->
                 <div class="md:col-span-2 lg:col-span-2">
-                    <div class="flex justify-between items-center mb-2">
+                    <div class="flex flex-wrap justify-between items-center gap-2 mb-2">
                         <label for="batch_nomor_polisi_select" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                             Pilih Nomor Polisi (Ketik untuk rekomendasi)
                         </label>
-                        <button type="button" @click="showBulkInput = !showBulkInput" class="text-indigo-600 dark:text-indigo-400 hover:underline normal-case font-normal text-xs flex items-center gap-1">
-                            <span x-text="showBulkInput ? 'Tutup Tempel' : '+ Tempel Banyak Nopol'"></span>
-                        </button>
+                        <div class="flex items-center gap-2">
+                            <!-- Hidden File Input for Excel Import -->
+                            <input type="file" id="batch_excel_file_input" accept=".xlsx, .xls, .csv" @change="handleExcelUpload($event)" class="hidden">
+                            <button type="button" @click="$('#batch_excel_file_input').click()" 
+                                    class="text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 font-semibold text-xs flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 transition-colors shadow-xs" 
+                                    title="Upload Excel/CSV (otomatis mendeteksi kolom Nopol)">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                <span>Import Excel</span>
+                            </button>
+                            <button type="button" @click="showBulkInput = !showBulkInput" class="text-indigo-600 dark:text-indigo-400 hover:underline normal-case font-medium text-xs flex items-center gap-1">
+                                <span x-text="showBulkInput ? 'Tutup Tempel' : '+ Tempel Nopol'"></span>
+                            </button>
+                        </div>
                     </div>
                     <div class="w-full">
                         <select id="batch_nomor_polisi_select" class="w-full select2-batch-nomor-polisi" multiple="multiple" style="width: 100%;">
                         </select>
+                    </div>
+                    <!-- Notification Banner for Excel Import / Bulk Paste -->
+                    <div x-show="uploadStatusMessage" x-cloak class="mt-2.5 p-3 text-xs rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-800 flex items-center justify-between shadow-xs">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span x-text="uploadStatusMessage"></span>
+                        </div>
+                        <button type="button" @click="uploadStatusMessage = ''" class="text-emerald-600 hover:text-emerald-800 dark:hover:text-emerald-100 font-bold ml-2">&times;</button>
                     </div>
                     <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-1.5">
                         Ketik nopol (contoh: <span class="font-mono text-indigo-500">B 1382</span>, <span class="font-mono text-indigo-500">L 1022</span>), klik saran yang muncul untuk menambahkannya.
@@ -258,6 +276,9 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 
+    <!-- SheetJS (Excel Importer) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
     <!-- pdfMake -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
@@ -470,6 +491,7 @@
             withTanggalUpdate: false,
             showBulkInput: false,
             bulkInputText: '',
+            uploadStatusMessage: '',
             loading: false,
             exporting: false,
             previewData: null,
@@ -559,9 +581,120 @@
                 });
             },
 
+            handleExcelUpload(event) {
+                let file = event.target.files[0];
+                if (!file) return;
+
+                let self = this;
+                let reader = new FileReader();
+
+                reader.onload = function(e) {
+                    try {
+                        let data = new Uint8Array(e.target.result);
+                        let workbook = XLSX.read(data, { type: 'array' });
+                        
+                        if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+                            alert('File Excel kosong atau tidak terbaca.');
+                            return;
+                        }
+
+                        let firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                        let rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
+
+                        if (!rows || rows.length === 0) {
+                            alert('Tidak ada data yang ditemukan di sheet pertama.');
+                            return;
+                        }
+
+                        // Header keywords to detect Nopol column
+                        let headerKeywords = ['nopol', 'no_polisi', 'nomor_polisi', 'no polisi', 'nomor polisi', 'plat', 'plate', 'no_plat', 'no plat', 'police', 'kendaraan', 'vehicle'];
+                        let ignoreKeywords = ['NOPOL', 'NO POLISI', 'NOMOR POLISI', 'NO_POLISI', 'NOMOR_POLISI', 'PLAT', 'PLATE', 'NO', 'NO.', 'KENDARAAN', 'VEHICLE'];
+
+                        let detectedColIdx = -1;
+                        let startRowIdx = 1;
+
+                        // Scan first 5 rows for header keyword
+                        for (let r = 0; r < Math.min(rows.length, 5); r++) {
+                            let row = rows[r];
+                            for (let c = 0; c < row.length; c++) {
+                                let cellVal = String(row[c] || '').trim().toLowerCase();
+                                if (headerKeywords.some(k => cellVal === k || cellVal.includes(k))) {
+                                    detectedColIdx = c;
+                                    startRowIdx = r + 1;
+                                    break;
+                                }
+                            }
+                            if (detectedColIdx !== -1) break;
+                        }
+
+                        // Fallback: If no header keyword was found, default to Column A (index 0)
+                        if (detectedColIdx === -1) {
+                            detectedColIdx = 0;
+                            let firstCell = String(rows[0][0] || '').trim().toUpperCase();
+                            if (ignoreKeywords.includes(firstCell)) {
+                                startRowIdx = 1;
+                            } else {
+                                startRowIdx = 0;
+                            }
+                        }
+
+                        // Extract plates
+                        let extracted = [];
+                        for (let r = startRowIdx; r < rows.length; r++) {
+                            let rawVal = String(rows[r][detectedColIdx] || '').trim().toUpperCase();
+                            let cleanVal = rawVal.replace(/\s+/g, '');
+                            if (rawVal && !ignoreKeywords.includes(rawVal) && !ignoreKeywords.includes(cleanVal) && rawVal.length >= 3) {
+                                extracted.push(rawVal);
+                            }
+                        }
+
+                        if (extracted.length === 0) {
+                            alert('Tidak ditemukan nomor polisi pada kolom yang terdeteksi.');
+                            return;
+                        }
+
+                        // Merge into selectedPlates
+                        let current = new Set(self.selectedPlates);
+                        extracted.forEach(p => current.add(p));
+                        let merged = Array.from(current);
+                        self.selectedPlates = merged;
+
+                        // Sync with Select2
+                        let $select = $('#batch_nomor_polisi_select');
+                        merged.forEach(val => {
+                            if ($select.find("option[value='" + val + "']").length === 0) {
+                                let newOption = new Option(val, val, true, true);
+                                $select.append(newOption);
+                            }
+                        });
+                        $select.val(merged).trigger('change');
+
+                        self.uploadStatusMessage = 'Berhasil mendeteksi ' + extracted.length + ' nomor polisi dari file (' + file.name + ')!';
+                        self.fetchPreview();
+
+                        // Reset input
+                        event.target.value = '';
+                    } catch (err) {
+                        console.error('Excel parse error:', err);
+                        alert('Gagal membaca file Excel: ' + err.message);
+                    }
+                };
+
+                reader.readAsArrayBuffer(file);
+            },
+
             applyBulkInput() {
                 if (!this.bulkInputText.trim()) return;
-                let items = this.bulkInputText.split(/[\r\n,;]+/).map(s => s.trim().toUpperCase()).filter(Boolean);
+                let ignoreKeywords = ['NOPOL', 'NO POLISI', 'NOMOR POLISI', 'NO_POLISI', 'NOMOR_POLISI', 'PLAT', 'PLATE', 'NO', 'NO.', 'KENDARAAN', 'VEHICLE'];
+                let items = this.bulkInputText.split(/[\r\n,;]+/)
+                    .map(s => s.trim().toUpperCase())
+                    .filter(s => s && !ignoreKeywords.includes(s) && !ignoreKeywords.includes(s.replace(/\s+/g, '')) && s.length >= 3);
+
+                if (items.length === 0) {
+                    alert('Tidak ada nomor polisi yang valid ditemukan.');
+                    return;
+                }
+
                 let current = new Set(this.selectedPlates);
                 items.forEach(item => current.add(item));
 
@@ -577,8 +710,10 @@
                     }
                 });
                 $select.val(merged).trigger('change');
+                this.uploadStatusMessage = 'Berhasil menambahkan ' + items.length + ' nomor polisi dari teks!';
                 this.bulkInputText = '';
                 this.showBulkInput = false;
+                this.fetchPreview();
             },
 
             removePlate(plate) {
@@ -596,6 +731,7 @@
                 this.startDateDisplay = '';
                 this.endDateDisplay = '';
                 this.previewData = null;
+                this.uploadStatusMessage = '';
                 $('#batch_nomor_polisi_select').val(null).trigger('change');
                 $('#batch_start_date, #batch_end_date').val('');
             },
@@ -613,7 +749,7 @@
                 $.ajax({
                     url: "{{ route('maintenance.batch.export.preview') }}",
                     data: {
-                        nomor_polisi: self.selectedPlates,
+                        nomor_polisi: self.selectedPlates.join(','),
                         start_date: self.startDate,
                         end_date: self.endDate
                     },
@@ -639,15 +775,50 @@
 
             triggerDownload(format) {
                 if (this.selectedPlates.length === 0) return;
-                let url = new URL("{{ route('maintenance.batch.export.download') }}", window.location.origin);
-                this.selectedPlates.forEach(p => url.searchParams.append('nomor_polisi[]', p));
-                if (this.startDate) url.searchParams.append('start_date', this.startDate);
-                if (this.endDate) url.searchParams.append('end_date', this.endDate);
-                url.searchParams.append('format', format);
-                if (this.withTanggalUpdate) {
-                    url.searchParams.append('with_tanggal_update', '1');
+                let form = document.createElement('form');
+                form.method = 'GET';
+                form.action = "{{ route('maintenance.batch.export.download') }}";
+                form.style.display = 'none';
+
+                let inputPlates = document.createElement('input');
+                inputPlates.type = 'hidden';
+                inputPlates.name = 'nomor_polisi';
+                inputPlates.value = this.selectedPlates.join(',');
+                form.appendChild(inputPlates);
+
+                if (this.startDate) {
+                    let inputStart = document.createElement('input');
+                    inputStart.type = 'hidden';
+                    inputStart.name = 'start_date';
+                    inputStart.value = this.startDate;
+                    form.appendChild(inputStart);
                 }
-                window.location.href = url.href;
+
+                if (this.endDate) {
+                    let inputEnd = document.createElement('input');
+                    inputEnd.type = 'hidden';
+                    inputEnd.name = 'end_date';
+                    inputEnd.value = this.endDate;
+                    form.appendChild(inputEnd);
+                }
+
+                let inputFormat = document.createElement('input');
+                inputFormat.type = 'hidden';
+                inputFormat.name = 'format';
+                inputFormat.value = format;
+                form.appendChild(inputFormat);
+
+                if (this.withTanggalUpdate) {
+                    let inputTgl = document.createElement('input');
+                    inputTgl.type = 'hidden';
+                    inputTgl.name = 'with_tanggal_update';
+                    inputTgl.value = '1';
+                    form.appendChild(inputTgl);
+                }
+
+                document.body.appendChild(form);
+                form.submit();
+                setTimeout(() => form.remove(), 1000);
             },
 
             exportPDF(includePrice = true) {
@@ -658,7 +829,7 @@
                 $.ajax({
                     url: "{{ route('maintenance.batch.export.download') }}",
                     data: {
-                        nomor_polisi: self.selectedPlates,
+                        nomor_polisi: self.selectedPlates.join(','),
                         start_date: self.startDate,
                         end_date: self.endDate,
                         format: 'json'
