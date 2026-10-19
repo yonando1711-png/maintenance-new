@@ -143,8 +143,99 @@ class BatchExportController extends Controller
         $format = $request->input('format', 'xlsx');
         $withTanggalUpdate = $request->boolean('with_tanggal_update', false);
 
-        if (empty($plates)) {
-            return response()->json(['error' => 'No vehicles specified.'], 400);
+        $type = $request->input('type', 'detail');
+
+        if ($type === 'summary') {
+            if ($format === 'xlsx' || $format === 'csv') {
+                try {
+                    $exportClass = new \App\Exports\BatchVehicleSummaryExport($plates, $start, $end);
+                    $ext = $format === 'xlsx' ? \Maatwebsite\Excel\Excel::XLSX : \Maatwebsite\Excel\Excel::CSV;
+                    $filename = 'Batch_Summary_Kendaraan_' . date('Ymd_His') . '.' . $format;
+                    return \Maatwebsite\Excel\Facades\Excel::download($exportClass, $filename, $ext);
+                } catch (\Exception $e) {
+                    Log::error("Batch Summary Excel Export Error: " . $e->getMessage() . "\n" . $e->getTraceAsString());
+                    return response()->json(['error' => 'Export failed: ' . $e->getMessage()], 500);
+                }
+            }
+
+            if ($format === 'json') {
+                try {
+                    $vehicles = Mobil::whereIn('nomor_polisi', $plates)->get()->keyBy('nomor_polisi');
+
+                    $query = Htransaksi::with(['mobil'])
+                        ->whereHas('mobil', function ($q) use ($plates) {
+                            $q->whereIn('nomor_polisi', $plates);
+                        });
+
+                    if ($start && $end) {
+                        $query->whereBetween('tanggal_job', [$start, $end]);
+                    } elseif ($start) {
+                        $query->where('tanggal_job', '>=', $start);
+                    } elseif ($end) {
+                        $query->where('tanggal_job', '<=', $end);
+                    }
+
+                    $transactions = $query->get();
+
+                    $rows = [];
+                    $totalJobs = 0;
+                    $overallCost = 0;
+                    $overallTax = 0;
+                    $overallGrand = 0;
+
+                    foreach ($plates as $nopol) {
+                        $v = $vehicles->get($nopol);
+                        $vTx = $transactions->filter(function ($t) use ($nopol) {
+                            return ($t->mobil->nomor_polisi ?? '') === $nopol;
+                        });
+
+                        $vCost = (float) $vTx->sum('harga_total');
+                        $vTax = (float) $vTx->sum('harga_pajak');
+                        $vGrand = $vCost + $vTax;
+                        $vJobCount = $vTx->count();
+
+                        $totalJobs += $vJobCount;
+                        $overallCost += $vCost;
+                        $overallTax += $vTax;
+                        $overallGrand += $vGrand;
+
+                        $rows[] = [
+                            'nomor_polisi' => $nopol,
+                            'nomor_chassis' => $v->nomor_chassis ?? '-',
+                            'model' => $v->model ?? '-',
+                            'tahun_pembuatan' => $v->tahun_pembuatan ?? '-',
+                            'warna' => $v->warna ?? '-',
+                            'kode_sup' => $v->kode_sup ?? '-',
+                            'job_count' => $vJobCount,
+                            'cost' => $vCost,
+                            'cost_formatted' => number_format($vCost, 0, ',', '.'),
+                            'tax' => $vTax,
+                            'tax_formatted' => number_format($vTax, 0, ',', '.'),
+                            'grand_total' => $vGrand,
+                            'grand_total_formatted' => number_format($vGrand, 0, ',', '.'),
+                        ];
+                    }
+
+                    return response()->json([
+                        'success' => true,
+                        'summaryRows' => $rows,
+                        'totalVehicles' => count($plates),
+                        'totalJobs' => $totalJobs,
+                        'overallCost' => $overallCost,
+                        'overallCostFormatted' => 'Rp ' . number_format($overallCost, 0, ',', '.'),
+                        'overallTax' => $overallTax,
+                        'overallTaxFormatted' => 'Rp ' . number_format($overallTax, 0, ',', '.'),
+                        'overallGrand' => $overallGrand,
+                        'overallGrandFormatted' => 'Rp ' . number_format($overallGrand, 0, ',', '.'),
+                        'startDate' => $start ? Carbon::parse($start)->format('d-m-Y') : null,
+                        'endDate' => $end ? Carbon::parse($end)->format('d-m-Y') : null,
+                        'generatedAt' => date('d-m-Y H:i:s'),
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error("Batch Summary JSON Export Error: " . $e->getMessage() . "\n" . $e->getTraceAsString());
+                    return response()->json(['error' => 'Export failed: ' . $e->getMessage()], 500);
+                }
+            }
         }
 
         $query = Htransaksi::with(['mobil', 'supplier', 'dtransaksi'])

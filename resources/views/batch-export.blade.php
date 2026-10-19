@@ -157,51 +157,95 @@
         </div>
 
         <!-- Export Action Bar -->
-        <div x-show="selectedPlates.length > 0" x-cloak class="bg-gradient-to-r from-indigo-50 to-indigo-100/50 dark:from-slate-800 dark:to-slate-800/80 border border-indigo-200 dark:border-slate-700 rounded-2xl p-4 md:p-5 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-sm">
+        <div x-show="selectedPlates.length > 0" x-cloak class="bg-gradient-to-r from-indigo-50/80 via-white to-indigo-50/50 dark:from-slate-800 dark:via-slate-800 dark:to-slate-800/80 border border-indigo-200 dark:border-slate-700 rounded-2xl p-4 md:p-5 mb-6 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 shadow-sm">
             <div>
-                <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200">Siap untuk Export</h3>
+                <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Pilihan Export Data (<span class="text-indigo-600 dark:text-indigo-400" x-text="selectedPlates.length"></span> Kendaraan Terpilih)
+                </h3>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    Data maintenance untuk <span class="font-bold text-indigo-600 dark:text-indigo-400" x-text="selectedPlates.length"></span> kendaraan terpilih siap di-generate.
+                    Pilih format <strong>Summary (1 baris per kendaraan)</strong> atau <strong>Detail (seluruh riwayat job & parts)</strong>.
                 </p>
             </div>
-            <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
-                <!-- Export XLSX -->
-                <button type="button" @click="exportXLSX()" :disabled="exporting"
-                        class="btn-batch-export btn-batch-xlsx" title="Download Excel (.xlsx)">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    Export XLSX
-                </button>
-                <!-- Export CSV -->
-                <button type="button" @click="exportCSV()" :disabled="exporting"
-                        class="btn-batch-export btn-batch-csv" title="Download CSV (.csv)">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    Export CSV
-                </button>
-                <!-- Export PDF (Lengkap) -->
-                <button type="button" @click="exportPDF(true)" :disabled="exporting"
-                        class="btn-batch-export btn-batch-pdf-full" title="Download PDF Lengkap dengan Harga">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                    Export PDF (Lengkap)
-                </button>
-                <!-- Export PDF (Tanpa Harga) -->
-                <button type="button" @click="exportPDF(false)" :disabled="exporting"
-                        class="btn-batch-export btn-batch-pdf-simple"
-                        title="PDF tanpa kolom harga (untuk driver / workshop)">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                    Export PDF (Tanpa Harga)
-                </button>
+            <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+                <!-- Group 1: Summary Export (Per Vehicle / 1 Baris Per Kendaraan) -->
+                <div class="flex items-center gap-2 bg-indigo-50/80 dark:bg-slate-900/80 p-1.5 rounded-xl border border-indigo-200 dark:border-slate-700 shadow-xs">
+                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 px-2 hidden sm:inline flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Summary (Per Mobil):
+                    </span>
+                    <!-- Summary XLSX -->
+                    <button type="button" @click="exportSummaryXLSX()" :disabled="exporting"
+                            class="btn-batch-export btn-batch-summary-xlsx" title="Export Ringkasan: Setiap kendaraan mendapat 1 baris berisi Nopol, Chassis, Jml Job, Subtotal Biaya">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Summary XLSX
+                    </button>
+                    <!-- Summary PDF -->
+                    <button type="button" @click="exportSummaryPDF()" :disabled="exporting"
+                            class="btn-batch-export btn-batch-summary-pdf" title="Export Ringkasan ke PDF: Tabel 1 baris per kendaraan">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        Summary PDF
+                    </button>
+                </div>
+
+                <!-- Group 2: Detailed Export (All Transactions & Parts) -->
+                <div class="flex items-center gap-2 bg-white dark:bg-slate-900/80 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs">
+                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 px-2 hidden sm:inline">
+                        Detail (Rinci):
+                    </span>
+                    <!-- Detail XLSX -->
+                    <button type="button" @click="exportXLSX()" :disabled="exporting"
+                            class="btn-batch-export btn-batch-xlsx" title="Download Excel Rinci (.xlsx) dengan seluruh baris transaksi dan parts">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Detail XLSX
+                    </button>
+                    <!-- Detail CSV -->
+                    <button type="button" @click="exportCSV()" :disabled="exporting"
+                            class="btn-batch-export btn-batch-csv" title="Download CSV Rinci (.csv)">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Detail CSV
+                    </button>
+                    <!-- Detail PDF (Lengkap) -->
+                    <button type="button" @click="exportPDF(true)" :disabled="exporting"
+                            class="btn-batch-export btn-batch-pdf-full" title="Download PDF Rinci Lengkap dengan Harga">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        Detail PDF
+                    </button>
+                    <!-- Detail PDF (Tanpa Harga) -->
+                    <button type="button" @click="exportPDF(false)" :disabled="exporting"
+                            class="btn-batch-export btn-batch-pdf-simple"
+                            title="PDF tanpa kolom harga (untuk driver / workshop)">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        Detail PDF (No Rp)
+                    </button>
+                </div>
             </div>
         </div>
 
         <!-- Selected Vehicles Detail Table -->
         <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-sm">
-            <div class="p-4 md:px-6 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
-                <h3 class="font-bold text-sm text-slate-800 dark:text-slate-100 uppercase tracking-wider">
-                    Daftar Kendaraan Terpilih (<span x-text="selectedPlates.length"></span>)
-                </h3>
-                <button type="button" x-show="selectedPlates.length > 0" @click="clearAll()" class="text-xs text-rose-500 hover:text-rose-600 hover:underline">
-                    Hapus Semua
-                </button>
+            <div class="p-4 md:px-6 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-100 dark:border-slate-700 flex flex-wrap justify-between items-center gap-2">
+                <div class="flex items-center gap-2">
+                    <h3 class="font-bold text-sm text-slate-800 dark:text-slate-100 uppercase tracking-wider">
+                        Daftar Kendaraan Terpilih (<span x-text="selectedPlates.length"></span>)
+                    </h3>
+                    <span class="text-[11px] text-slate-400 dark:text-slate-500 hidden sm:inline">- Subtotal per kendaraan</span>
+                </div>
+                <div class="flex items-center gap-2" x-show="selectedPlates.length > 0">
+                    <button type="button" @click="exportSummaryXLSX()" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1" title="Export tabel ini ke Excel (1 baris per mobil)">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Export Summary XLSX
+                    </button>
+                    <span class="text-slate-300 dark:text-slate-600">|</span>
+                    <button type="button" @click="exportSummaryPDF()" class="text-xs font-bold text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1" title="Export tabel ini ke PDF (1 baris per mobil)">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        Export Summary PDF
+                    </button>
+                    <span class="text-slate-300 dark:text-slate-600">|</span>
+                    <button type="button" @click="clearAll()" class="text-xs text-rose-500 hover:text-rose-600 hover:underline font-medium">
+                        Hapus Semua
+                    </button>
+                </div>
             </div>
 
             <!-- Empty State -->
@@ -311,6 +355,25 @@
         .btn-batch-export:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+        }
+
+        /* 0. Summary Export Buttons */
+        .btn-batch-summary-xlsx {
+            background-color: #4f46e5 !important;
+            border: 1px solid #4338ca !important;
+        }
+        .btn-batch-summary-xlsx:hover:not(:disabled) {
+            background-color: #4338ca !important;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-batch-summary-pdf {
+            background-color: #7c3aed !important;
+            border: 1px solid #6d28d9 !important;
+        }
+        .btn-batch-summary-pdf:hover:not(:disabled) {
+            background-color: #6d28d9 !important;
+            box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.4);
         }
 
         /* 1. Export XLSX (Green) */
@@ -765,15 +828,46 @@
                 });
             },
 
+            exportSummaryXLSX() {
+                this.triggerDownload('xlsx', 'summary');
+            },
+
+            exportSummaryPDF() {
+                if (this.selectedPlates.length === 0) return;
+                let self = this;
+                this.exporting = true;
+
+                $.ajax({
+                    url: "{{ route('maintenance.batch.export.download') }}",
+                    data: {
+                        nomor_polisi: self.selectedPlates.join(','),
+                        start_date: self.startDate,
+                        end_date: self.endDate,
+                        type: 'summary',
+                        format: 'json'
+                    },
+                    success: function(res) {
+                        self.generateSummaryPDFReport(res);
+                    },
+                    error: function(err) {
+                        alert('Gagal mengambil data untuk Ringkasan PDF. Silakan coba lagi.');
+                        console.error(err);
+                    },
+                    complete: function() {
+                        self.exporting = false;
+                    }
+                });
+            },
+
             exportXLSX() {
-                this.triggerDownload('xlsx');
+                this.triggerDownload('xlsx', 'detail');
             },
 
             exportCSV() {
-                this.triggerDownload('csv');
+                this.triggerDownload('csv', 'detail');
             },
 
-            triggerDownload(format) {
+            triggerDownload(format, type = 'detail') {
                 if (this.selectedPlates.length === 0) return;
                 let form = document.createElement('form');
                 form.method = 'GET';
@@ -807,6 +901,12 @@
                 inputFormat.name = 'format';
                 inputFormat.value = format;
                 form.appendChild(inputFormat);
+
+                let inputType = document.createElement('input');
+                inputType.type = 'hidden';
+                inputType.name = 'type';
+                inputType.value = type;
+                form.appendChild(inputType);
 
                 if (this.withTanggalUpdate) {
                     let inputTgl = document.createElement('input');
@@ -1023,6 +1123,134 @@
                 };
 
                 let filename = 'Batch_Maintenance_Report_' + (includePrice ? 'Lengkap_' : 'Tanpa_Harga_') + new Date().toISOString().slice(0, 10) + '.pdf';
+                pdfMake.createPdf(docDefinition).download(filename);
+            },
+
+            generateSummaryPDFReport(data) {
+                let rows = data.summaryRows || [];
+                let docContent = [];
+
+                // Title Page / Header
+                docContent.push({
+                    text: 'RINGKASAN BATCH MAINTENANCE HISTORY PER KENDARAAN (SUMMARY)',
+                    style: 'mainTitle',
+                    alignment: 'center',
+                    margin: [0, 0, 0, 4]
+                });
+
+                let subtitle = 'Generated on: ' + (data.generatedAt || new Date().toLocaleString('id-ID')) + ' | Total Kendaraan: ' + (data.totalVehicles || rows.length);
+                if (data.startDate || data.endDate) {
+                    subtitle += ' | Periode: ' + (data.startDate || 'Awal') + ' s/d ' + (data.endDate || 'Akhir');
+                }
+
+                docContent.push({
+                    text: subtitle,
+                    alignment: 'center',
+                    fontSize: 8.5,
+                    color: '#64748b',
+                    margin: [0, 0, 0, 14]
+                });
+
+                // Summary Table with 1 row per vehicle
+                let tableHeaders = [
+                    'No',
+                    'Nomor Polisi',
+                    'Nomor Chassis',
+                    'Model',
+                    'Thn / Warna',
+                    'Supplier',
+                    'Jml Job',
+                    'Subtotal Biaya (Rp)',
+                    'PPN (Rp)',
+                    'Grand Total (Rp)'
+                ];
+                let colWidths = [22, 68, 105, 115, 75, 50, 45, 80, 65, 85];
+
+                let bodyRows = [
+                    tableHeaders.map((h, i) => ({
+                        text: h,
+                        style: 'tableHeader',
+                        alignment: (i >= 6 ? (i === 6 ? 'center' : 'right') : 'left')
+                    }))
+                ];
+
+                if (rows.length === 0) {
+                    bodyRows.push([
+                        { text: 'Tidak ada data kendaraan yang dipilih.', colSpan: tableHeaders.length, alignment: 'center', italics: true, color: '#94a3b8', margin: [0, 8, 0, 8] },
+                        ...Array(tableHeaders.length - 1).fill('')
+                    ]);
+                } else {
+                    rows.forEach(function(row, idx) {
+                        let isEven = (idx % 2 === 0);
+                        let bg = isEven ? '#ffffff' : '#f8fafc';
+
+                        bodyRows.push([
+                            { text: String(idx + 1), fontSize: 7.5, alignment: 'center', fillColor: bg },
+                            { text: row.nomor_polisi, fontSize: 7.5, bold: true, color: '#1e3a8a', fillColor: bg },
+                            { text: row.nomor_chassis, fontSize: 7, fillColor: bg },
+                            { text: row.model, fontSize: 7.5, fillColor: bg },
+                            { text: (row.tahun_pembuatan || '-') + ' / ' + (row.warna || '-'), fontSize: 7, fillColor: bg },
+                            { text: row.kode_sup, fontSize: 7, fillColor: bg },
+                            { text: String(row.job_count), fontSize: 7.5, alignment: 'center', fillColor: bg },
+                            { text: row.cost_formatted, fontSize: 7.5, alignment: 'right', fillColor: bg },
+                            { text: row.tax_formatted, fontSize: 7.5, alignment: 'right', fillColor: bg },
+                            { text: row.grand_total_formatted, fontSize: 7.5, bold: true, alignment: 'right', fillColor: bg }
+                        ]);
+                    });
+
+                    // Total Summary Row at bottom
+                    bodyRows.push([
+                        { text: 'TOTAL (' + rows.length + ' KENDARAAN)', bold: true, fontSize: 8, colSpan: 6, alignment: 'right', fillColor: '#e2e8f0' },
+                        '', '', '', '', '',
+                        { text: String(data.totalJobs || 0) + ' Jobs', bold: true, fontSize: 8, alignment: 'center', fillColor: '#e2e8f0' },
+                        { text: data.overallCostFormatted || 'Rp 0', bold: true, fontSize: 8, alignment: 'right', fillColor: '#e2e8f0' },
+                        { text: data.overallTaxFormatted || 'Rp 0', bold: true, fontSize: 8, alignment: 'right', fillColor: '#e2e8f0' },
+                        { text: data.overallGrandFormatted || 'Rp 0', bold: true, fontSize: 8, alignment: 'right', fillColor: '#cbd5e1', color: '#0f172a' }
+                    ]);
+                }
+
+                docContent.push({
+                    table: {
+                        headerRows: 1,
+                        widths: colWidths,
+                        body: bodyRows
+                    },
+                    layout: {
+                        hLineWidth: function (i, node) { return 0.5; },
+                        vLineWidth: function (i, node) { return 0.5; },
+                        hLineColor: function (i, node) { return '#cbd5e1'; },
+                        vLineColor: function (i, node) { return '#cbd5e1'; },
+                        paddingLeft: function (i, node) { return 4; },
+                        paddingRight: function (i, node) { return 4; },
+                        paddingTop: function (i, node) { return 4; },
+                        paddingBottom: function (i, node) { return 4; }
+                    }
+                });
+
+                let docDefinition = {
+                    pageSize: 'A4',
+                    pageOrientation: 'landscape',
+                    pageMargins: [25, 25, 25, 25],
+                    content: docContent,
+                    styles: {
+                        mainTitle: {
+                            fontSize: 13,
+                            bold: true,
+                            color: '#1e293b'
+                        },
+                        tableHeader: {
+                            bold: true,
+                            fontSize: 7.5,
+                            color: '#ffffff',
+                            fillColor: '#1e293b'
+                        }
+                    },
+                    defaultStyle: {
+                        fontSize: 7.5
+                    }
+                };
+
+                let filename = 'Batch_Summary_Kendaraan_' + new Date().toISOString().slice(0, 10) + '.pdf';
                 pdfMake.createPdf(docDefinition).download(filename);
             }
         };
