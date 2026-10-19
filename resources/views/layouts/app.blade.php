@@ -138,6 +138,13 @@
                           :class="sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'">Repair Jobs</span>
                 </a>
 
+                <a href="{{ route('maintenance.batch.export') }}" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all group {{ request()->routeIs('maintenance.batch.export') ? 'active' : '' }}"
+                   title="Batch Export">
+                   <svg class="w-5 h-5 group-hover:scale-110 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    <span class="font-medium whitespace-nowrap overflow-hidden transition-all duration-300" 
+                          :class="sidebarCollapsed ? 'w-0 opacity-0' : 'w-auto opacity-100'">Batch Export</span>
+                </a>
+
                 <div class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 mt-6 px-2 whitespace-nowrap overflow-hidden transition-all duration-300"
                      :class="sidebarCollapsed ? 'text-center' : 'px-4'">
                      <span x-show="!sidebarCollapsed">Utilities</span>

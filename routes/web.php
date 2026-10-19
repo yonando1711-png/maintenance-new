@@ -52,6 +52,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/repair-job-details/{nomor_job}', [\App\Http\Controllers\RepairJobController::class, 'details'])
             ->where('nomor_job', '.*')
             ->name('repair.job.details');
+        Route::get('/batch-export', [\App\Http\Controllers\BatchExportController::class, 'index'])->name('batch.export');
+        Route::get('/batch-export-preview', [\App\Http\Controllers\BatchExportController::class, 'preview'])->name('batch.export.preview');
+        Route::get('/batch-export-download', [\App\Http\Controllers\BatchExportController::class, 'download'])->name('batch.export.download');
     });
 
     // ──────────────────────────────────────────
