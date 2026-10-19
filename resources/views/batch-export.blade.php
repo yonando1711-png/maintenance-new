@@ -30,22 +30,24 @@
 
     <div class="p-6">
         <!-- Filter Card -->
-        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 md:p-6 mb-6 shadow-sm">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 mb-5">
+        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 md:p-6 mb-6 shadow-sm">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                 <!-- Select2 Multi-Vehicle Search (Recommendation Bar) -->
-                <div class="lg:col-span-6">
-                    <label for="batch_nomor_polisi_select" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wider flex justify-between items-center">
-                        <span>Pilih Nomor Polisi (Ketik untuk rekomendasi & pilih banyak)</span>
+                <div class="md:col-span-2 lg:col-span-2">
+                    <div class="flex justify-between items-center mb-2">
+                        <label for="batch_nomor_polisi_select" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                            Pilih Nomor Polisi (Ketik untuk rekomendasi)
+                        </label>
                         <button type="button" @click="showBulkInput = !showBulkInput" class="text-indigo-600 dark:text-indigo-400 hover:underline normal-case font-normal text-xs flex items-center gap-1">
-                            <span x-text="showBulkInput ? 'Tutup Input Massal' : '+ Tempel Banyak Nopol'"></span>
+                            <span x-text="showBulkInput ? 'Tutup Tempel' : '+ Tempel Banyak Nopol'"></span>
                         </button>
-                    </label>
-                    <div class="relative">
-                        <select id="batch_nomor_polisi_select" class="w-full select2-batch-nomor-polisi" multiple="multiple">
+                    </div>
+                    <div class="w-full">
+                        <select id="batch_nomor_polisi_select" class="w-full select2-batch-nomor-polisi" multiple="multiple" style="width: 100%;">
                         </select>
                     </div>
                     <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-1.5">
-                        Ketikkan nomor polisi (contoh: <span class="font-mono text-indigo-500">B 1382</span>, <span class="font-mono text-indigo-500">L 1022</span>), klik saran yang muncul untuk menambahkannya.
+                        Ketik nopol (contoh: <span class="font-mono text-indigo-500">B 1382</span>, <span class="font-mono text-indigo-500">L 1022</span>), klik saran yang muncul untuk menambahkannya.
                     </p>
 
                     <!-- Collapsible Quick Paste Area -->
@@ -63,9 +65,9 @@
                 </div>
 
                 <!-- Date Range Filters -->
-                <div class="lg:col-span-3">
+                <div>
                     <label for="batch_start_date" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wider">Start Date (Opsional)</label>
-                    <div class="relative">
+                    <div class="relative w-full">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         </div>
@@ -73,9 +75,9 @@
                     </div>
                 </div>
 
-                <div class="lg:col-span-3">
+                <div>
                     <label for="batch_end_date" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wider">End Date (Opsional)</label>
-                    <div class="relative">
+                    <div class="relative w-full">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         </div>
@@ -244,512 +246,547 @@
         </div>
     </div>
 </div>
+@endsection
 
-<style>
-    [x-cloak] { display: none !important; }
+@section('scripts')
+    <!-- Select2 CSS & JS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    /* Custom Select2 Multi-Select Styling (Indigo Theme) */
-    .select2-container--default .select2-selection--multiple {
-        border: 1px solid #e2e8f0;
-        background-color: #ffffff;
-        min-height: 2.75rem !important;
-        border-radius: 0.75rem;
-        padding: 0.25rem 0.5rem;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 0.25rem;
-    }
-    .select2-container--default.select2-container--focus .select2-selection--multiple {
-        border-color: #6366f1;
-        outline: none;
-        box-shadow: 0 0 0 1px #6366f1;
-    }
-    .select2-container--default .select2-selection--multiple .select2-selection__choice {
-        background-color: #e0e7ff;
-        border: 1px solid #c7d2fe;
-        color: #3730a3;
-        font-weight: 700;
-        font-family: monospace;
-        font-size: 0.75rem;
-        border-radius: 0.5rem;
-        padding: 0.2rem 0.5rem;
-        margin: 2px;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.25rem;
-    }
-    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
-        color: #4f46e5;
-        font-weight: bold;
-        margin-right: 0.25rem;
-        border: none;
-        background: transparent;
-        cursor: pointer;
-    }
-    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
-        color: #dc2626;
-    }
-    .select2-container--default .select2-search--inline .select2-search__field {
-        font-size: 0.875rem;
-        margin-top: 0;
-        color: #334155;
-    }
+    <!-- DateRangePicker CSS & JS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 
-    /* Dark Mode Overrides for Select2 */
-    .dark .select2-container--default .select2-selection--multiple {
-        border-color: #475569;
-        background-color: #1e293b;
-    }
-    .dark .select2-container--default .select2-selection--multiple .select2-selection__choice {
-        background-color: rgba(67, 56, 202, 0.35);
-        border-color: rgba(99, 102, 241, 0.5);
-        color: #c7d2fe;
-    }
-    .dark .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
-        color: #a5b4fc;
-    }
-    .dark .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
-        color: #f87171;
-    }
-    .dark .select2-container--default .select2-search--inline .select2-search__field {
-        color: #e2e8f0;
-    }
-    .select2-dropdown {
-        border: 1px solid #e2e8f0;
-        border-radius: 0.75rem;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        border-top-width: 0;
-        background-color: #ffffff;
-        font-size: 0.875rem;
-        overflow: hidden;
-    }
-    .dark .select2-dropdown {
-        border-color: #475569;
-        background-color: #1e293b;
-    }
-    .select2-results__option {
-        color: #334155;
-        padding: 0.5rem 1rem;
-    }
-    .dark .select2-results__option {
-        color: #cbd5e1;
-    }
-    .select2-container--default .select2-results__option--highlighted[aria-selected] {
-        background-color: #4f46e5 !important;
-        color: #ffffff !important;
-    }
-    .dark .daterangepicker {
-        background-color: #1e293b;
-        border-color: #475569;
-        color: #e2e8f0;
-    }
-    .dark .daterangepicker .calendar-table {
-        background-color: #1e293b;
-        border-color: #1e293b;
-    }
-    .dark .daterangepicker td.off {
-        background-color: #1e293b;
-        color: #64748b;
-    }
-    .dark .daterangepicker td.available:hover {
-        background-color: #334155;
-    }
-</style>
+    <!-- pdfMake -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
-<script>
-function batchExportPage() {
-    return {
-        selectedPlates: [],
-        startDate: '',
-        endDate: '',
-        startDateDisplay: '',
-        endDateDisplay: '',
-        withTanggalUpdate: false,
-        showBulkInput: false,
-        bulkInputText: '',
-        loading: false,
-        exporting: false,
-        previewData: null,
+    <style>
+        [x-cloak] { display: none !important; }
 
-        init() {
-            let self = this;
+        /* Select2 Full Width Container */
+        .select2-container {
+            width: 100% !important;
+        }
 
-            // Initialize Select2 Multiple with AJAX suggestion
-            $('#batch_nomor_polisi_select').select2({
-                placeholder: 'Ketik nopol untuk cari rekomendasi (contoh: B 1382)...',
-                allowClear: true,
-                multiple: true,
-                ajax: {
-                    url: "{{ route('maintenance.nomor_polisi.search') }}",
-                    dataType: 'json',
-                    delay: 250,
-                    data: function(params) {
-                        return { q: params.term };
-                    },
-                    processResults: function(data) {
-                        return { results: data };
-                    },
-                    cache: true
-                }
-            }).on('change', function() {
-                let vals = $(this).val() || [];
-                self.selectedPlates = vals;
-                if (vals.length > 0) {
-                    self.fetchPreview();
-                } else {
-                    self.previewData = null;
-                }
-            });
+        /* Custom Select2 Multi-Select Styling (Indigo Theme) */
+        .select2-container--default .select2-selection--multiple {
+            border: 1px solid #e2e8f0;
+            background-color: #ffffff;
+            min-height: 2.5rem !important;
+            border-radius: 0.75rem;
+            padding: 0.2rem 0.5rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border-color: #6366f1;
+            outline: none;
+            box-shadow: 0 0 0 1px #6366f1;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: #e0e7ff;
+            border: 1px solid #c7d2fe;
+            color: #3730a3;
+            font-weight: 700;
+            font-family: monospace;
+            font-size: 0.75rem;
+            border-radius: 0.5rem;
+            padding: 0.2rem 0.5rem;
+            margin: 2px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            color: #4f46e5;
+            font-weight: bold;
+            margin-right: 0.25rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+            color: #dc2626;
+        }
+        .select2-container--default .select2-search--inline .select2-search__field {
+            font-size: 0.875rem;
+            margin-top: 0;
+            color: #334155;
+            min-width: 150px;
+        }
 
-            // Initialize Datepickers
-            $('#batch_start_date').daterangepicker({
-                singleDatePicker: true,
-                autoUpdateInput: false,
-                showDropdowns: true,
-                locale: { cancelLabel: 'Clear', format: 'DD-MM-YYYY' }
-            }, function(start) {
-                self.startDate = start.format('YYYY-MM-DD');
-                self.startDateDisplay = start.format('DD-MM-YYYY');
-                if (self.selectedPlates.length > 0) self.fetchPreview();
-            });
+        /* Dark Mode Overrides for Select2 */
+        .dark .select2-container--default .select2-selection--multiple {
+            border-color: #475569;
+            background-color: #334155;
+        }
+        .dark .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: rgba(67, 56, 202, 0.45);
+            border-color: rgba(99, 102, 241, 0.6);
+            color: #c7d2fe;
+        }
+        .dark .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            color: #a5b4fc;
+        }
+        .dark .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+            color: #f87171;
+        }
+        .dark .select2-container--default .select2-search--inline .select2-search__field {
+            color: #e2e8f0;
+        }
+        .select2-dropdown {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-top-width: 0;
+            background-color: #ffffff;
+            font-size: 0.875rem;
+            overflow: hidden;
+            z-index: 9999;
+        }
+        .dark .select2-dropdown {
+            border-color: #475569;
+            background-color: #334155;
+        }
+        .select2-results__option {
+            color: #334155;
+            padding: 0.5rem 1rem;
+        }
+        .dark .select2-results__option {
+            color: #cbd5e1;
+        }
+        .dark .select2-results__option:hover {
+            background-color: rgba(49, 46, 129, 0.4);
+        }
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #4f46e5 !important;
+            color: #ffffff !important;
+        }
+        .dark .select2-container--default .select2-results__option--selected {
+            background-color: #475569;
+        }
 
-            $('#batch_end_date').daterangepicker({
-                singleDatePicker: true,
-                autoUpdateInput: false,
-                showDropdowns: true,
-                locale: { cancelLabel: 'Clear', format: 'DD-MM-YYYY' }
-            }, function(start) {
-                self.endDate = start.format('YYYY-MM-DD');
-                self.endDateDisplay = start.format('DD-MM-YYYY');
-                if (self.selectedPlates.length > 0) self.fetchPreview();
-            });
+        /* DateRangePicker Dark Mode overrides */
+        .dark .daterangepicker {
+            background-color: #1e293b;
+            border-color: #475569;
+            color: #e2e8f0;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .dark .daterangepicker .calendar-table {
+            background-color: #1e293b;
+            border-color: #1e293b;
+        }
+        .dark .daterangepicker td.off {
+            background-color: #1e293b;
+            color: #64748b;
+        }
+        .dark .daterangepicker td.available:hover {
+            background-color: #334155;
+        }
+    </style>
 
-            $('#batch_start_date, #batch_end_date').on('apply.daterangepicker', function(ev, picker) {
-                $(this).val(picker.startDate.format('DD-MM-YYYY'));
-                if (ev.target.id === 'batch_start_date') {
-                    self.startDate = picker.startDate.format('YYYY-MM-DD');
-                    self.startDateDisplay = picker.startDate.format('DD-MM-YYYY');
-                } else {
-                    self.endDate = picker.startDate.format('YYYY-MM-DD');
-                    self.endDateDisplay = picker.startDate.format('DD-MM-YYYY');
-                }
-                if (self.selectedPlates.length > 0) self.fetchPreview();
-            });
+    <script>
+    function batchExportPage() {
+        return {
+            selectedPlates: [],
+            startDate: '',
+            endDate: '',
+            startDateDisplay: '',
+            endDateDisplay: '',
+            withTanggalUpdate: false,
+            showBulkInput: false,
+            bulkInputText: '',
+            loading: false,
+            exporting: false,
+            previewData: null,
 
-            $('#batch_start_date, #batch_end_date').on('cancel.daterangepicker', function(ev) {
-                $(this).val('');
-                if (ev.target.id === 'batch_start_date') {
-                    self.startDate = '';
-                    self.startDateDisplay = '';
-                } else {
-                    self.endDate = '';
-                    self.endDateDisplay = '';
-                }
-                if (self.selectedPlates.length > 0) self.fetchPreview();
-            });
-        },
+            init() {
+                let self = this;
 
-        applyBulkInput() {
-            if (!this.bulkInputText.trim()) return;
-            let items = this.bulkInputText.split(/[\r\n,;]+/).map(s => s.trim().toUpperCase()).filter(Boolean);
-            let current = new Set(this.selectedPlates);
-            items.forEach(item => current.add(item));
-
-            let merged = Array.from(current);
-            this.selectedPlates = merged;
-
-            // Update Select2 options
-            let $select = $('#batch_nomor_polisi_select');
-            merged.forEach(val => {
-                if ($select.find("option[value='" + val + "']").length === 0) {
-                    let newOption = new Option(val, val, true, true);
-                    $select.append(newOption);
-                }
-            });
-            $select.val(merged).trigger('change');
-            this.bulkInputText = '';
-            this.showBulkInput = false;
-        },
-
-        removePlate(plate) {
-            let idx = this.selectedPlates.indexOf(plate);
-            if (idx > -1) {
-                this.selectedPlates.splice(idx, 1);
-                $('#batch_nomor_polisi_select').val(this.selectedPlates).trigger('change');
-            }
-        },
-
-        clearAll() {
-            this.selectedPlates = [];
-            this.startDate = '';
-            this.endDate = '';
-            this.startDateDisplay = '';
-            this.endDateDisplay = '';
-            this.previewData = null;
-            $('#batch_nomor_polisi_select').val(null).trigger('change');
-            $('#batch_start_date, #batch_end_date').val('');
-        },
-
-        getVehicleInfo(nopol) {
-            if (!this.previewData || !this.previewData.vehicles) return null;
-            return this.previewData.vehicles.find(v => v.nomor_polisi === nopol);
-        },
-
-        fetchPreview() {
-            if (this.selectedPlates.length === 0) return;
-            let self = this;
-            this.loading = true;
-
-            $.ajax({
-                url: "{{ route('maintenance.batch.export.preview') }}",
-                data: {
-                    nomor_polisi: self.selectedPlates,
-                    start_date: self.startDate,
-                    end_date: self.endDate
-                },
-                success: function(res) {
-                    self.previewData = res;
-                },
-                error: function(err) {
-                    console.error('Failed to fetch preview', err);
-                },
-                complete: function() {
-                    self.loading = false;
-                }
-            });
-        },
-
-        exportXLSX() {
-            this.triggerDownload('xlsx');
-        },
-
-        exportCSV() {
-            this.triggerDownload('csv');
-        },
-
-        triggerDownload(format) {
-            if (this.selectedPlates.length === 0) return;
-            let url = new URL("{{ route('maintenance.batch.export.download') }}", window.location.origin);
-            this.selectedPlates.forEach(p => url.searchParams.append('nomor_polisi[]', p));
-            if (this.startDate) url.searchParams.append('start_date', this.startDate);
-            if (this.endDate) url.searchParams.append('end_date', this.endDate);
-            url.searchParams.append('format', format);
-            if (this.withTanggalUpdate) {
-                url.searchParams.append('with_tanggal_update', '1');
-            }
-            window.location.href = url.href;
-        },
-
-        exportPDF(includePrice = true) {
-            if (this.selectedPlates.length === 0) return;
-            let self = this;
-            this.exporting = true;
-
-            $.ajax({
-                url: "{{ route('maintenance.batch.export.download') }}",
-                data: {
-                    nomor_polisi: self.selectedPlates,
-                    start_date: self.startDate,
-                    end_date: self.endDate,
-                    format: 'json'
-                },
-                success: function(res) {
-                    self.generatePDFReport(res, includePrice);
-                },
-                error: function(err) {
-                    alert('Gagal mengambil data untuk PDF. Silakan coba lagi.');
-                    console.error(err);
-                },
-                complete: function() {
-                    self.exporting = false;
-                }
-            });
-        },
-
-        generatePDFReport(data, includePrice) {
-            let docContent = [];
-
-            // Title Page / Header
-            docContent.push({
-                text: 'LAPORAN BATCH MAINTENANCE HISTORY',
-                style: 'mainTitle',
-                alignment: 'center',
-                margin: [0, 0, 0, 4]
-            });
-            docContent.push({
-                text: 'Generated on: ' + (data.generatedAt || new Date().toLocaleString('id-ID')) + ' | Total Kendaraan: ' + data.groupedData.length,
-                alignment: 'center',
-                fontSize: 9,
-                color: '#64748b',
-                margin: [0, 0, 0, 15]
-            });
-
-            // Iterate over each vehicle
-            data.groupedData.forEach(function(item, vIdx) {
-                let v = item.vehicle;
-                let txs = item.transactions;
-
-                // Vehicle Specs Box
-                docContent.push({
-                    table: {
-                        widths: ['*', '*', '*'],
-                        body: [
-                            [
-                                { text: [{ text: 'Nomor Polisi: ', bold: true }, v.nomor_polisi || '-'], fillColor: '#f1f5f9', border: [0, 0, 0, 0] },
-                                { text: [{ text: 'Nomor Chassis: ', bold: true }, v.nomor_chassis || '-'], fillColor: '#f1f5f9', border: [0, 0, 0, 0] },
-                                { text: [{ text: 'Model: ', bold: true }, v.model || '-'], fillColor: '#f1f5f9', border: [0, 0, 0, 0] }
-                            ],
-                            [
-                                { text: [{ text: 'Tahun: ', bold: true }, v.tahun_pembuatan || '-'], fillColor: '#f1f5f9', border: [0, 0, 0, 0] },
-                                { text: [{ text: 'Warna: ', bold: true }, v.warna || '-'], fillColor: '#f1f5f9', border: [0, 0, 0, 0] },
-                                { text: [{ text: 'Nomor Mesin: ', bold: true }, v.nomor_mesin || '-'], fillColor: '#f1f5f9', border: [0, 0, 0, 0] }
-                            ],
-                            [
-                                { text: [{ text: 'Tgl Beli: ', bold: true }, v.tanggal_pembelian || '-'], fillColor: '#f1f5f9', border: [0, 0, 0, 0] },
-                                { text: [{ text: 'Supplier: ', bold: true }, v.kode_sup || '-'], fillColor: '#f1f5f9', border: [0, 0, 0, 0] },
-                                { text: [{ text: 'Total Transaksi: ', bold: true }, txs.length + ' Baris'], fillColor: '#f1f5f9', border: [0, 0, 0, 0] }
-                            ]
-                        ]
-                    },
-                    margin: [0, vIdx > 0 ? 10 : 0, 0, 8],
-                    fontSize: 8.5
-                });
-
-                // Transactions Table
-                let tableHeaders = [];
-                let colWidths = [];
-
-                if (includePrice) {
-                    tableHeaders = ['No Job', 'Tgl Job', 'KM', 'Tipe', 'Service', 'Product', 'Deskripsi', 'Qty', 'Harga', 'Total', 'Tax', 'Ket'];
-                    colWidths = [70, 45, 35, 35, 45, 65, 80, 20, 50, 65, 45, '*'];
-                } else {
-                    tableHeaders = ['No Job', 'Tgl Job', 'KM', 'Tipe', 'Service', 'Product', 'Deskripsi', 'Qty', 'Tgl Close', 'Keterangan'];
-                    colWidths = [80, 50, 40, 40, 55, 85, 100, 25, 55, '*'];
-                }
-
-                let bodyRows = [
-                    tableHeaders.map(h => ({ text: h, style: 'tableHeader' }))
-                ];
-
-                if (txs.length === 0) {
-                    bodyRows.push([
-                        { text: 'Tidak ada riwayat perbaikan tercatat untuk periode ini.', colSpan: tableHeaders.length, alignment: 'center', italics: true, color: '#94a3b8', margin: [0, 5, 0, 5] },
-                        ...Array(tableHeaders.length - 1).fill('')
-                    ]);
-                } else {
-                    txs.forEach(function(row) {
-                        if (includePrice) {
-                            let hargaFormatted = row.harga ? Number(row.harga).toLocaleString('id-ID') : (row.is_detail ? '' : '-');
-                            let totalFormatted = row.harga_total ? Number(row.harga_total).toLocaleString('id-ID') : '';
-                            if (row.workshop_harent) totalFormatted += ' - ' + row.workshop_harent;
-                            let taxFormatted = row.harga_pajak ? Number(row.harga_pajak).toLocaleString('id-ID') : '';
-
-                            bodyRows.push([
-                                { text: row.nomor_job || '', fontSize: 7, color: row.is_detail ? '#64748b' : '#0f172a' },
-                                { text: row.tanggal_job || '', fontSize: 7 },
-                                { text: String(row.posisi_km || ''), fontSize: 7 },
-                                { text: row.tipe || '', fontSize: 7 },
-                                { text: row.maintenance_service || '', fontSize: 7 },
-                                { text: row.product || '', fontSize: 7 },
-                                { text: row.deskripsi || '', fontSize: 7 },
-                                { text: String(row.jumlah || ''), fontSize: 7, alignment: 'center' },
-                                { text: hargaFormatted, fontSize: 7, alignment: 'right' },
-                                { text: totalFormatted, fontSize: 7, alignment: 'right' },
-                                { text: taxFormatted, fontSize: 7, alignment: 'right' },
-                                { text: row.keterangan || '', fontSize: 7 }
-                            ]);
-                        } else {
-                            bodyRows.push([
-                                { text: row.nomor_job || '', fontSize: 7, color: row.is_detail ? '#64748b' : '#0f172a' },
-                                { text: row.tanggal_job || '', fontSize: 7 },
-                                { text: String(row.posisi_km || ''), fontSize: 7 },
-                                { text: row.tipe || '', fontSize: 7 },
-                                { text: row.maintenance_service || '', fontSize: 7 },
-                                { text: row.product || '', fontSize: 7 },
-                                { text: row.deskripsi || '', fontSize: 7 },
-                                { text: String(row.jumlah || ''), fontSize: 7, alignment: 'center' },
-                                { text: row.tanggal_close || '', fontSize: 7 },
-                                { text: row.keterangan || '', fontSize: 7 }
-                            ]);
-                        }
-                    });
-
-                    // Subtotal row for this vehicle if price included
-                    if (includePrice && item.totalCost > 0) {
-                        bodyRows.push([
-                            { text: 'Subtotal ' + v.nomor_polisi + ':', colSpan: 9, bold: true, alignment: 'right', fillColor: '#f8fafc', fontSize: 7.5 },
-                            ...Array(8).fill(''),
-                            { text: 'Rp ' + Number(item.totalCost).toLocaleString('id-ID'), bold: true, alignment: 'right', fillColor: '#f8fafc', fontSize: 7.5 },
-                            { text: 'Rp ' + Number(item.totalTax).toLocaleString('id-ID'), bold: true, alignment: 'right', fillColor: '#f8fafc', fontSize: 7.5 },
-                            { text: '', fillColor: '#f8fafc' }
-                        ]);
+                $(document).ready(function() {
+                    // Initialize Select2 Multiple with AJAX suggestion
+                    if (typeof $.fn.select2 !== 'undefined') {
+                        $('#batch_nomor_polisi_select').select2({
+                            width: '100%',
+                            placeholder: 'Ketik nopol untuk cari rekomendasi (contoh: B 1382)...',
+                            allowClear: true,
+                            multiple: true,
+                            ajax: {
+                                url: "{{ route('maintenance.nomor_polisi.search') }}",
+                                dataType: 'json',
+                                delay: 250,
+                                data: function(params) {
+                                    return { q: params.term };
+                                },
+                                processResults: function(data) {
+                                    return { results: data };
+                                },
+                                cache: true
+                            }
+                        }).on('change', function() {
+                            let vals = $(this).val() || [];
+                            self.selectedPlates = vals;
+                            if (vals.length > 0) {
+                                self.fetchPreview();
+                            } else {
+                                self.previewData = null;
+                            }
+                        });
                     }
-                }
 
-                docContent.push({
-                    table: {
-                        headerRows: 1,
-                        widths: colWidths,
-                        body: bodyRows
+                    // Initialize Datepickers
+                    if (typeof $.fn.daterangepicker !== 'undefined') {
+                        $('#batch_start_date').daterangepicker({
+                            singleDatePicker: true,
+                            autoUpdateInput: false,
+                            showDropdowns: true,
+                            locale: { cancelLabel: 'Clear', format: 'DD-MM-YYYY' }
+                        }, function(start) {
+                            self.startDate = start.format('YYYY-MM-DD');
+                            self.startDateDisplay = start.format('DD-MM-YYYY');
+                            if (self.selectedPlates.length > 0) self.fetchPreview();
+                        });
+
+                        $('#batch_end_date').daterangepicker({
+                            singleDatePicker: true,
+                            autoUpdateInput: false,
+                            showDropdowns: true,
+                            locale: { cancelLabel: 'Clear', format: 'DD-MM-YYYY' }
+                        }, function(start) {
+                            self.endDate = start.format('YYYY-MM-DD');
+                            self.endDateDisplay = start.format('DD-MM-YYYY');
+                            if (self.selectedPlates.length > 0) self.fetchPreview();
+                        });
+
+                        $('#batch_start_date, #batch_end_date').on('apply.daterangepicker', function(ev, picker) {
+                            $(this).val(picker.startDate.format('DD-MM-YYYY'));
+                            if (ev.target.id === 'batch_start_date') {
+                                self.startDate = picker.startDate.format('YYYY-MM-DD');
+                                self.startDateDisplay = picker.startDate.format('DD-MM-YYYY');
+                            } else {
+                                self.endDate = picker.startDate.format('YYYY-MM-DD');
+                                self.endDateDisplay = picker.startDate.format('DD-MM-YYYY');
+                            }
+                            if (self.selectedPlates.length > 0) self.fetchPreview();
+                        });
+
+                        $('#batch_start_date, #batch_end_date').on('cancel.daterangepicker', function(ev) {
+                            $(this).val('');
+                            if (ev.target.id === 'batch_start_date') {
+                                self.startDate = '';
+                                self.startDateDisplay = '';
+                            } else {
+                                self.endDate = '';
+                                self.endDateDisplay = '';
+                            }
+                            if (self.selectedPlates.length > 0) self.fetchPreview();
+                        });
+                    }
+                });
+            },
+
+            applyBulkInput() {
+                if (!this.bulkInputText.trim()) return;
+                let items = this.bulkInputText.split(/[\r\n,;]+/).map(s => s.trim().toUpperCase()).filter(Boolean);
+                let current = new Set(this.selectedPlates);
+                items.forEach(item => current.add(item));
+
+                let merged = Array.from(current);
+                this.selectedPlates = merged;
+
+                // Update Select2 options
+                let $select = $('#batch_nomor_polisi_select');
+                merged.forEach(val => {
+                    if ($select.find("option[value='" + val + "']").length === 0) {
+                        let newOption = new Option(val, val, true, true);
+                        $select.append(newOption);
+                    }
+                });
+                $select.val(merged).trigger('change');
+                this.bulkInputText = '';
+                this.showBulkInput = false;
+            },
+
+            removePlate(plate) {
+                let idx = this.selectedPlates.indexOf(plate);
+                if (idx > -1) {
+                    this.selectedPlates.splice(idx, 1);
+                    $('#batch_nomor_polisi_select').val(this.selectedPlates).trigger('change');
+                }
+            },
+
+            clearAll() {
+                this.selectedPlates = [];
+                this.startDate = '';
+                this.endDate = '';
+                this.startDateDisplay = '';
+                this.endDateDisplay = '';
+                this.previewData = null;
+                $('#batch_nomor_polisi_select').val(null).trigger('change');
+                $('#batch_start_date, #batch_end_date').val('');
+            },
+
+            getVehicleInfo(nopol) {
+                if (!this.previewData || !this.previewData.vehicles) return null;
+                return this.previewData.vehicles.find(v => v.nomor_polisi === nopol);
+            },
+
+            fetchPreview() {
+                if (this.selectedPlates.length === 0) return;
+                let self = this;
+                this.loading = true;
+
+                $.ajax({
+                    url: "{{ route('maintenance.batch.export.preview') }}",
+                    data: {
+                        nomor_polisi: self.selectedPlates,
+                        start_date: self.startDate,
+                        end_date: self.endDate
                     },
+                    success: function(res) {
+                        self.previewData = res;
+                    },
+                    error: function(err) {
+                        console.error('Failed to fetch preview', err);
+                    },
+                    complete: function() {
+                        self.loading = false;
+                    }
+                });
+            },
+
+            exportXLSX() {
+                this.triggerDownload('xlsx');
+            },
+
+            exportCSV() {
+                this.triggerDownload('csv');
+            },
+
+            triggerDownload(format) {
+                if (this.selectedPlates.length === 0) return;
+                let url = new URL("{{ route('maintenance.batch.export.download') }}", window.location.origin);
+                this.selectedPlates.forEach(p => url.searchParams.append('nomor_polisi[]', p));
+                if (this.startDate) url.searchParams.append('start_date', this.startDate);
+                if (this.endDate) url.searchParams.append('end_date', this.endDate);
+                url.searchParams.append('format', format);
+                if (this.withTanggalUpdate) {
+                    url.searchParams.append('with_tanggal_update', '1');
+                }
+                window.location.href = url.href;
+            },
+
+            exportPDF(includePrice = true) {
+                if (this.selectedPlates.length === 0) return;
+                let self = this;
+                this.exporting = true;
+
+                $.ajax({
+                    url: "{{ route('maintenance.batch.export.download') }}",
+                    data: {
+                        nomor_polisi: self.selectedPlates,
+                        start_date: self.startDate,
+                        end_date: self.endDate,
+                        format: 'json'
+                    },
+                    success: function(res) {
+                        self.generatePDFReport(res, includePrice);
+                    },
+                    error: function(err) {
+                        alert('Gagal mengambil data untuk PDF. Silakan coba lagi.');
+                        console.error(err);
+                    },
+                    complete: function() {
+                        self.exporting = false;
+                    }
+                });
+            },
+
+            generatePDFReport(data, includePrice) {
+                let docContent = [];
+
+                // Title Page / Header
+                docContent.push({
+                    text: 'LAPORAN BATCH MAINTENANCE HISTORY',
+                    style: 'mainTitle',
+                    alignment: 'center',
+                    margin: [0, 0, 0, 4]
+                });
+                docContent.push({
+                    text: 'Generated on: ' + (data.generatedAt || new Date().toLocaleString('id-ID')) + ' | Total Kendaraan: ' + data.groupedData.length,
+                    alignment: 'center',
+                    fontSize: 9,
+                    color: '#64748b',
                     margin: [0, 0, 0, 15]
                 });
 
-                // Add page break between vehicles except for the last one
-                if (vIdx < data.groupedData.length - 1) {
-                    docContent.push({ text: '', pageBreak: 'after' });
-                }
-            });
+                // Iterate over each vehicle
+                data.groupedData.forEach(function(item, vIdx) {
+                    let v = item.vehicle;
+                    let txs = item.transactions;
 
-            // Grand Total block at the very end
-            if (includePrice) {
-                docContent.push({
-                    table: {
-                        widths: ['*', 180],
-                        body: [
-                            [
-                                { text: 'RINGKASAN TOTAL KESELURUHAN (' + data.groupedData.length + ' KENDARAAN)', bold: true, fillColor: '#e0e7ff', fontSize: 9 },
-                                { text: 'Rp ' + Number(data.overallGrandTotal).toLocaleString('id-ID'), bold: true, alignment: 'right', fillColor: '#e0e7ff', fontSize: 10 }
+                    // Vehicle Specs Box
+                    docContent.push({
+                        table: {
+                            widths: ['*', '*', '*'],
+                            body: [
+                                [
+                                    { text: [{ text: 'Nomor Polisi: ', bold: true }, v.nomor_polisi || '-'], fillColor: '#f1f5f9', border: [0, 0, 0, 0] },
+                                    { text: [{ text: 'Nomor Chassis: ', bold: true }, v.nomor_chassis || '-'], fillColor: '#f1f5f9', border: [0, 0, 0, 0] },
+                                    { text: [{ text: 'Model: ', bold: true }, v.model || '-'], fillColor: '#f1f5f9', border: [0, 0, 0, 0] }
+                                ],
+                                [
+                                    { text: [{ text: 'Tahun: ', bold: true }, v.tahun_pembuatan || '-'], fillColor: '#f1f5f9', border: [0, 0, 0, 0] },
+                                    { text: [{ text: 'Warna: ', bold: true }, v.warna || '-'], fillColor: '#f1f5f9', border: [0, 0, 0, 0] },
+                                    { text: [{ text: 'Nomor Mesin: ', bold: true }, v.nomor_mesin || '-'], fillColor: '#f1f5f9', border: [0, 0, 0, 0] }
+                                ],
+                                [
+                                    { text: [{ text: 'Tgl Beli: ', bold: true }, v.tanggal_pembelian || '-'], fillColor: '#f1f5f9', border: [0, 0, 0, 0] },
+                                    { text: [{ text: 'Supplier: ', bold: true }, v.kode_sup || '-'], fillColor: '#f1f5f9', border: [0, 0, 0, 0] },
+                                    { text: [{ text: 'Total Transaksi: ', bold: true }, txs.length + ' Baris'], fillColor: '#f1f5f9', border: [0, 0, 0, 0] }
+                                ]
                             ]
-                        ]
-                    },
-                    margin: [0, 10, 0, 0]
-                });
-            }
+                        },
+                        margin: [0, vIdx > 0 ? 10 : 0, 0, 8],
+                        fontSize: 8.5
+                    });
 
-            let docDefinition = {
-                pageOrientation: 'landscape',
-                pageSize: 'A4',
-                pageMargins: [20, 20, 20, 20],
-                content: docContent,
-                styles: {
-                    mainTitle: {
-                        fontSize: 14,
-                        bold: true,
-                        color: '#1e293b'
-                    },
-                    tableHeader: {
-                        bold: true,
-                        fontSize: 7.5,
-                        color: '#334155',
-                        fillColor: '#f1f5f9',
-                        alignment: 'center'
+                    // Transactions Table
+                    let tableHeaders = [];
+                    let colWidths = [];
+
+                    if (includePrice) {
+                        tableHeaders = ['No Job', 'Tgl Job', 'KM', 'Tipe', 'Service', 'Product', 'Deskripsi', 'Qty', 'Harga', 'Total', 'Tax', 'Ket'];
+                        colWidths = [70, 45, 35, 35, 45, 65, 80, 20, 50, 65, 45, '*'];
+                    } else {
+                        tableHeaders = ['No Job', 'Tgl Job', 'KM', 'Tipe', 'Service', 'Product', 'Deskripsi', 'Qty', 'Tgl Close', 'Keterangan'];
+                        colWidths = [80, 50, 40, 40, 55, 85, 100, 25, 55, '*'];
                     }
-                },
-                defaultStyle: {
-                    fontSize: 7.5
+
+                    let bodyRows = [
+                        tableHeaders.map(h => ({ text: h, style: 'tableHeader' }))
+                    ];
+
+                    if (txs.length === 0) {
+                        bodyRows.push([
+                            { text: 'Tidak ada riwayat perbaikan tercatat untuk periode ini.', colSpan: tableHeaders.length, alignment: 'center', italics: true, color: '#94a3b8', margin: [0, 5, 0, 5] },
+                            ...Array(tableHeaders.length - 1).fill('')
+                        ]);
+                    } else {
+                        txs.forEach(function(row) {
+                            if (includePrice) {
+                                let hargaFormatted = row.harga ? Number(row.harga).toLocaleString('id-ID') : (row.is_detail ? '' : '-');
+                                let totalFormatted = row.harga_total ? Number(row.harga_total).toLocaleString('id-ID') : '';
+                                if (row.workshop_harent) totalFormatted += ' - ' + row.workshop_harent;
+                                let taxFormatted = row.harga_pajak ? Number(row.harga_pajak).toLocaleString('id-ID') : '';
+
+                                bodyRows.push([
+                                    { text: row.nomor_job || '', fontSize: 7, color: row.is_detail ? '#64748b' : '#0f172a' },
+                                    { text: row.tanggal_job || '', fontSize: 7 },
+                                    { text: String(row.posisi_km || ''), fontSize: 7 },
+                                    { text: row.tipe || '', fontSize: 7 },
+                                    { text: row.maintenance_service || '', fontSize: 7 },
+                                    { text: row.product || '', fontSize: 7 },
+                                    { text: row.deskripsi || '', fontSize: 7 },
+                                    { text: String(row.jumlah || ''), fontSize: 7, alignment: 'center' },
+                                    { text: hargaFormatted, fontSize: 7, alignment: 'right' },
+                                    { text: totalFormatted, fontSize: 7, alignment: 'right' },
+                                    { text: taxFormatted, fontSize: 7, alignment: 'right' },
+                                    { text: row.keterangan || '', fontSize: 7 }
+                                ]);
+                            } else {
+                                bodyRows.push([
+                                    { text: row.nomor_job || '', fontSize: 7, color: row.is_detail ? '#64748b' : '#0f172a' },
+                                    { text: row.tanggal_job || '', fontSize: 7 },
+                                    { text: String(row.posisi_km || ''), fontSize: 7 },
+                                    { text: row.tipe || '', fontSize: 7 },
+                                    { text: row.maintenance_service || '', fontSize: 7 },
+                                    { text: row.product || '', fontSize: 7 },
+                                    { text: row.deskripsi || '', fontSize: 7 },
+                                    { text: String(row.jumlah || ''), fontSize: 7, alignment: 'center' },
+                                    { text: row.tanggal_close || '', fontSize: 7 },
+                                    { text: row.keterangan || '', fontSize: 7 }
+                                ]);
+                            }
+                        });
+
+                        // Subtotal row for this vehicle if price included
+                        if (includePrice && item.totalCost > 0) {
+                            bodyRows.push([
+                                { text: 'Subtotal ' + v.nomor_polisi + ':', colSpan: 9, bold: true, alignment: 'right', fillColor: '#f8fafc', fontSize: 7.5 },
+                                ...Array(8).fill(''),
+                                { text: 'Rp ' + Number(item.totalCost).toLocaleString('id-ID'), bold: true, alignment: 'right', fillColor: '#f8fafc', fontSize: 7.5 },
+                                { text: 'Rp ' + Number(item.totalTax).toLocaleString('id-ID'), bold: true, alignment: 'right', fillColor: '#f8fafc', fontSize: 7.5 },
+                                { text: '', fillColor: '#f8fafc' }
+                            ]);
+                        }
+                    }
+
+                    docContent.push({
+                        table: {
+                            headerRows: 1,
+                            widths: colWidths,
+                            body: bodyRows
+                        },
+                        margin: [0, 0, 0, 15]
+                    });
+
+                    // Add page break between vehicles except for the last one
+                    if (vIdx < data.groupedData.length - 1) {
+                        docContent.push({ text: '', pageBreak: 'after' });
+                    }
+                });
+
+                // Grand Total block at the very end
+                if (includePrice) {
+                    docContent.push({
+                        table: {
+                            widths: ['*', 180],
+                            body: [
+                                [
+                                    { text: 'RINGKASAN TOTAL KESELURUHAN (' + data.groupedData.length + ' KENDARAAN)', bold: true, fillColor: '#e0e7ff', fontSize: 9 },
+                                    { text: 'Rp ' + Number(data.overallGrandTotal).toLocaleString('id-ID'), bold: true, alignment: 'right', fillColor: '#e0e7ff', fontSize: 10 }
+                                ]
+                            ]
+                        },
+                        margin: [0, 10, 0, 0]
+                    });
                 }
-            };
 
-            let filename = 'Batch_Maintenance_Report_' + (includePrice ? 'Lengkap_' : 'Tanpa_Harga_') + new Date().toISOString().slice(0, 10) + '.pdf';
-            pdfMake.createPdf(docDefinition).download(filename);
-        }
-    };
-}
-</script>
+                let docDefinition = {
+                    pageOrientation: 'landscape',
+                    pageSize: 'A4',
+                    pageMargins: [20, 20, 20, 20],
+                    content: docContent,
+                    styles: {
+                        mainTitle: {
+                            fontSize: 14,
+                            bold: true,
+                            color: '#1e293b'
+                        },
+                        tableHeader: {
+                            bold: true,
+                            fontSize: 7.5,
+                            color: '#334155',
+                            fillColor: '#f1f5f9',
+                            alignment: 'center'
+                        }
+                    },
+                    defaultStyle: {
+                        fontSize: 7.5
+                    }
+                };
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+                let filename = 'Batch_Maintenance_Report_' + (includePrice ? 'Lengkap_' : 'Tanpa_Harga_') + new Date().toISOString().slice(0, 10) + '.pdf';
+                pdfMake.createPdf(docDefinition).download(filename);
+            }
+        };
+    }
+    </script>
 @endsection
